@@ -1,0 +1,25 @@
+<!-- templates/detector/live.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>VegCheck - Live Camera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style> body { font-family: 'Poppins', sans-serif; } </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+  <header class="bg-green-800 text-white py-4">
+    <div class="container mx-auto px-4">
+      <h1 class="text-xl font-bold">VegCheck - Live Camera (Server-side)</h1>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6">
+    <div class="bg-white p-6 rounded shadow">
+      <p class="mb-4">Live feed processed on server — detections drawn on each frame.</p>
+      <img id="liveImg" src="{% url 'detector:live_feed' %}" class="w-full rounded" alt="Live feed">
+      <p class="mt-4 text-sm text-gray-600">Note: Server does inference frame-by-frame; performance depends on server hardware.</p>
+    </div>
+  </main>
+</body>
+</html>

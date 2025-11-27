@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>VegCheck - Result</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Poppins', sans-serif; }
+  .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.16); }
+  .badge { padding: 0.25rem 0.6rem; border-radius: 999px; font-weight:600; }
+</style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#0f3d2e] via-[#18764b] to-[#30c16a] text-white">
+
+<header class="glass sticky top-0 z-40 px-8 py-4 flex justify-between items-center rounded-b-xl">
+  <h1 class="text-2xl font-bold">🥕 VegCheck • Results</h1>
+  <nav class="flex gap-4">
+    <a href="{% url 'detector:upload' %}" class="glass px-4 py-2 rounded hover:scale-105">Upload</a>
+    <a href="{% url 'detector:live' %}" class="glass px-4 py-2 rounded hover:scale-105">Live</a>
+  </nav>
+</header>
+
+<main class="container mx-auto px-6 py-10">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- LEFT: Annotated image -->
+    <div class="glass p-6 rounded-2xl shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Annotated Image</h2>
+      <img src="{{ annotated }}" alt="Annotated" class="w-full rounded-lg border">
+      <p class="mt-4 text-white/85">Total detected: <strong>{{ total }}</strong> |
+        Fresh: <strong>{{ fresh_count }}</strong> |
+        Rotten: <strong>{{ rotten_count }}</strong></p>
+
+      <div class="mt-4">
+        <h4 class="font-semibold">Overall Advice</h4>
+        <p class="text-white/90 mt-2">{{ overall_advice }}</p>
+      </div>
+    </div>
+
+    <!-- MIDDLE: Summary & Charts -->
+    <div class="glass p-6 rounded-2xl shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Summary</h2>
+
+      <div class="flex items-center gap-6">
+        <div class="w-50 h-50">
+          <canvas id="freshDonut"></canvas>
+          <div class="text-center mt-2 text-sm">
+            <div>Fresh: <strong>{{ fresh_pct_count }}% || Rotten: <strong>{{ rotten_pct_count }}%</strong></strong></div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="flex-1">
+          <h4 class="font-semibold">Confidence Averages</h4>
+          <p class="text-white/85 mt-2">Fresh avg: <strong>{{ fresh_avg_conf }}%</strong></p>
+          <p class="text-white/85">Rotten avg: <strong>{{ rotten_avg_conf }}%</strong></p>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <h4 class="font-semibold mb-2">Per-class counts</h4>
+        <canvas id="classBar"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT: Suggestions -->
+    <div class="glass p-6 rounded-2xl shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Recommendations (per class)</h2>
+
+      <div class="space-y-4 max-h-[70vh] overflow-auto pr-2">
+        {% for cls, suggestion in suggestions.items %}
+          <div class="p-3 rounded-lg bg-white/6 border border-white/10">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-md font-semibold">{{ cls|title }}</div>
+                <div class="text-sm text-white/80 mt-1">
+                  Avg confidence: <strong>%</strong>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 text-white/90">
+              {{ suggestion }}
+            </div>
+          </div>
+        {% empty %}
+          <p>No suggestions available.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="text-center py-6 text-white/80">
+  © 2025 VegCheck AI • Built with ❤️ Machine Learning
+</footer>
+
+<script>
+  // helper to safely read template variables
+  const freshPct = Number({{ fresh_pct_count|default:0 }});
+  const rottenPct = Number({{ rotten_pct_count|default:0 }});
+
+  // donut
+  const ctx = document.getElementById('freshDonut').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fresh', 'Rotten'],
+      datasets: [{ data: [freshPct, rottenPct],
+        backgroundColor: ['rgba(34,197,94,0.95)', 'rgba(239,68,68,0.95)'] }]
+    },
+    options: { cutout: '70%', plugins: { legend: { display: false } } }
+  });
+
+  // per-class bar
+  const classCounts = {{ counts|safe }}; // dict
+  const labels = Object.keys(classCounts);
+  const data = Object.values(classCounts);
+  const colors = labels.map(l => l.includes('rotten') ? 'rgba(239,68,68,0.85)' : 'rgba(34,197,94,0.85)');
+
+  const ctx2 = document.getElementById('classBar').getContext('2d');
+  new Chart(ctx2, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Count', data, backgroundColor: colors }] },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+</script>
+</body>
+</html>

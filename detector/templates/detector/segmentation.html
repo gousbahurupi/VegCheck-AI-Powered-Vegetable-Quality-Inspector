@@ -1,0 +1,406 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Segmentation |Orchid Mapping with Deep Learning with Semantic Segmentation </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .video-background {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+        }
+        .content-overlay {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #ffffff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-100">
+    <div class="video-container">
+        <video autoplay muted loop class="video-background">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+    </div>
+
+    <header class="bg-green-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl">🌿</span>
+                <h1 class="text-2xl font-bold">Orchid Mapping with Deep Learning with Semantic Segmentation </h1>
+            </div>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8">
+                    <li><a href="{% url 'home' %}" class="nav-link font-medium">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="nav-link font-medium">About</a></li>
+                    <li><a href="{% url 'segmentation' %}" class="nav-link font-medium">Segmentation</a></li>
+                    <li><a href="{% url 'upload' %}" class="bg-white text-green-800 font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition">Upload</a></li>
+                </ul>
+            </nav>
+            <button class="md:hidden focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="relative py-20">
+            <div class="content-overlay mx-auto max-w-5xl px-4 py-12 rounded-xl shadow-lg">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl font-bold text-green-800 mb-4">U-Net for Image Segmentation</h2>
+                    <p class="text-lg text-gray-700">Learn about the U-Net architecture and its application in our orchid tree mapping process.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-green-700 mb-4">What is U-Net?</h3>
+                        <p class="text-gray-600 mb-6">
+                            The U-Net is a convolutional neural network (CNN) architecture that was originally designed for biomedical image segmentation. Its distinctive U-shape gives it its name. It consists of two main parts:
+                            <ul class="list-disc list-inside mt-2">
+                                <li><strong>Contracting Path (Encoder):</strong> This path is a typical convolutional network that progressively reduces the spatial resolution of the input image while increasing the number of feature channels. It captures the context of the image.</li>
+                                <li><strong>Expansive Path (Decoder):</strong> This path symmetrically expands the feature maps while decreasing the number of channels. It uses transposed convolutions to upsample the feature maps and concatenates them with corresponding feature maps from the contracting path, enabling precise localization.</li>
+                            </ul>
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-green-700 mb-4">Key Features of U-Net</h3>
+                        <ul class="list-disc list-inside text-gray-600 mb-6">
+                            <li><strong>End-to-End Training:</strong> U-Net can be trained end-to-end from very few annotated images.</li>
+                            <li><strong>Strong Localization:</strong> The skip connections between the contracting and expansive paths allow the decoder to learn to assemble a precise output segmentation based on the high-resolution features from the encoder.</li>
+                            <li><strong>Contextual Information:</strong> The deep contracting path provides the necessary context to distinguish between different objects.</li>
+                            <li><strong>Effective for Biomedical Images:</strong> While originally designed for biomedical images, its architecture has proven highly effective for various other image segmentation tasks, including our orchid tree mapping.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-10">
+                    <h3 class="text-2xl font-semibold text-green-700 mb-4">How U-Net is Used in Orchid Tree Mapping</h3>
+                    <p class="text-gray-600 mb-6">
+                        In our orchid tree mapping process, we utilize a U-Net model that has been specifically trained on aerial imagery of orchid plantations. The model learns to:
+                        <ul class="list-disc list-inside mt-2">
+                            <li><strong>Identify Orchid Tree Canopies:</strong> The contracting path extracts features that are indicative of tree canopies.</li>
+                            <li><strong>Delineate Boundaries:</strong> The expansive path, with the help of skip connections, precisely outlines the boundaries of each individual orchid tree.</li>
+                            <li><strong>Handle Overlapping Canopies:</strong> The model is trained to distinguish individual trees even when their canopies overlap, leading to accurate counting and segmentation.</li>
+                        </ul>
+                    </p>
+                    <p class="text-gray-600">
+                        By leveraging the power of the U-Net architecture, we can achieve high accuracy in automatically identifying and mapping orchid trees from aerial images, providing valuable insights for plantation management and analysis.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    </body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Semantic Segmentation | U-Net</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .video-background {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+        }
+        .content-overlay {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        .architecture-diagram {
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #ffffff;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover:after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-100">
+    <!-- Video Background -->
+    <div class="video-container">
+        <video autoplay muted loop class="video-background">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-sunlight-through-trees-in-a-forest-504-large.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Navbar -->
+    <header class="bg-green-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl"></span>
+                <h1 class="text-2xl font-bold">Orchid Mapping with Deep Learning with Semantic Segmentation </h1>
+            </div>
+            <nav class="hidden md:block">
+                <ul class="flex space-x-8">
+                    <li><a href="{% url 'home' %}" class="nav-link font-medium">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="nav-link font-medium">About</a></li>
+                    <li><a href="{% url 'segmentation' %}" class="nav-link font-medium">Segmentation</a></li>
+                    <li><a href="{% url 'upload' %}" class="bg-white text-green-800 font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition">Upload</a></li>
+                </ul>
+
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="relative py-16">
+            <div class="content-overlay mx-auto max-w-6xl px-4 py-12 rounded-xl shadow-lg">
+                <div class="text-center">
+                    <h2 class="text-4xl md:text-5xl font-bold text-green-800 mb-6">U-Net for Semantic Segmentation</h2>
+                    <p class="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
+                        A deep convolutional network architecture designed for precise pixel-level classification.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Concepts Section -->
+        <section class="py-12 bg-white bg-opacity-90">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <h2 class="text-3xl font-bold text-green-800 mb-8 text-center">Core Concepts</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-green-800 mb-4">What is Semantic Segmentation?</h3>
+                        <ul class="text-gray-600 space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Pixel-wise classification task</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Assigns a class label to each pixel</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Unlike instance segmentation, doesn't distinguish between objects of same class</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-green-800 mb-4">Why U-Net?</h3>
+                        <ul class="text-gray-600 space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Originally developed for biomedical image segmentation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Excels with limited training data</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Precise localization through skip connections</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section class="py-12 bg-green-50 bg-opacity-70">
+            <div class="container mx-auto px-4 max-w-5xl">
+                <h2 class="text-3xl font-bold text-green-800 mb-8 text-center">U-Net Architecture</h2>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg mb-12">
+                    <img src="https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/u-net-architecture.png" 
+                         alt="U-Net Architecture Diagram" 
+                         class="architecture-diagram rounded-lg w-full h-auto">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">Contracting Path (Encoder)</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">1</div>
+                                <div>
+                                    <p class="text-gray-700">Repeated application of 3x3 convolutions (unpadded), each followed by ReLU</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">2</div>
+                                <div>
+                                    <p class="text-gray-700">2x2 max pooling with stride 2 for downsampling</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">3</div>
+                                <div>
+                                    <p class="text-gray-700">Doubling of feature channels at each downsampling step</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">Expansive Path (Decoder)</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">1</div>
+                                <div>
+                                    <p class="text-gray-700">Up-convolution that halves feature channels</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">2</div>
+                                <div>
+                                    <p class="text-gray-700">Concatenation with corresponding cropped feature map from contracting path</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 text-green-800 font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1 flex-shrink-0">3</div>
+                                <div>
+                                    <p class="text-gray-700">Two 3x3 convolutions, each followed by ReLU</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Details Section -->
+        <section class="py-12 bg-white bg-opacity-90">
+            <div class="container mx-auto px-4 max-w-4xl">
+                <h2 class="text-3xl font-bold text-green-800 mb-8 text-center">Technical Implementation</h2>
+                
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-green-800 mb-4">Loss Function</h3>
+                        <p class="text-gray-700 mb-4">
+                            U-Net typically uses a pixel-wise softmax with cross-entropy loss function combined with Dice coefficient to handle class imbalance:
+                        </p>
+                        <div class="bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                            <code class="text-sm text-gray-800">
+                                loss = -∑<sub>i</sub>∑<sub>c</sub>w<sub>c</sub>y<sub>i,c</sub>log(p<sub>i,c</sub>) + (1 - Dice)
+                            </code>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-green-800 mb-4">Data Augmentation</h3>
+                        <p class="text-gray-700 mb-2">
+                            Critical for learning with limited annotated data:
+                        </p>
+                        <ul class="text-gray-600 grid grid-cols-2 gap-2">
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Elastic deformations</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Random rotations</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Intensity variations</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-green-600 mr-2">•</span>
+                                <span>Mirroring</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <h3 class="text-xl font-semibold text-green-800 mb-4">Key Innovations</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-medium text-green-700">Overlap-tile Strategy</h4>
+                                <p class="text-gray-600">Enables seamless segmentation of arbitrarily large images by mirroring border regions</p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-green-700">Weighted Loss</h4>
+                                <p class="text-gray-600">Pixel-wise loss weights to handle touching objects of same class</p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-green-700">Data Augmentation</h4>
+                                <p class="text-gray-600">Elastic deformations to learn invariance to such variations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-green-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2023 Semantic Segmentation with U-Net</p>
+        </div>
+    </footer>
+</body>
+</html>

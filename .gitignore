@@ -1,0 +1,22 @@
+# Python / venv
+venv/
+*.pyc
+__pycache__/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Django
+*.log
+db.sqlite3
+
+# Training artifacts (large files)
+training/
+training/*
+*.pt
+*.onnx
+*.tflite
+
+# OS files
+.DS_Store
+Thumbs.db

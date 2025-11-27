@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VegCheck – Upload Image</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* Hover smoothness */
+    .smooth:hover {
+        transform: scale(1.05);
+    }
+
+    /* Drag & Drop Highlight */
+    .drop-active {
+        border-color: #ffea00 !important;
+        background-color: rgba(255,255,255,0.25) !important;
+    }
+</style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-green-800 via-green-600 to-green-400 text-white">
+
+<!-- NAVBAR -->
+<header class="flex justify-between items-center px-10 py-5 glass sticky top-0 z-50 rounded-b-xl shadow-lg">
+    <h1 class="text-3xl font-bold flex items-center gap-2">🥕 VegCheck</h1>
+    <nav>
+        <ul class="flex space-x-8 text-lg font-medium">
+            <li><a href="/" class="nav-link transition">Home</a></li>
+            <li><a href="/upload/" class="nav-link transition">Upload</a></li>
+            <li><a href="/live/" class="nav-link transition">Live Detection</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Upload Section -->
+<section class="flex justify-center items-center px-6 py-16">
+    <div class="glass rounded-2xl shadow-2xl p-10 max-w-2xl w-full text-center">
+
+        <h2 class="text-3xl font-bold mb-4">Upload Image 🥗</h2>
+        <p class="text-white/85 mb-8">
+            Upload or drag and drop an image of any fruit / vegetable.  
+            Our AI will instantly tell you whether it's <b>Fresh</b> or <b>Rotten</b>.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data" action="{% url 'detector:process' %}">
+            {% csrf_token %}
+
+            <!-- Drag & Drop Area -->
+            <label id="drop-area"
+                   class="glass border-2 border-dashed border-white/50 rounded-2xl p-10 cursor-pointer transition text-white block">
+
+                <span class="text-xl opacity-90">🍏 Drag & Drop Image Here</span><br>
+                <span class="text-white/60 text-sm">or Click to Browse</span>
+
+                <input type="file" name="image" accept="image/*" required class="hidden" id="fileInput">
+            </label>
+
+            <button type="submit"
+                class="mt-8 px-8 py-3 glass rounded-xl text-xl font-semibold hover:bg-white/20 transition smooth">
+                ✅ Analyze Freshness
+            </button>
+        </form>
+
+        <a href="/live/" class="block mt-6 underline hover:text-yellow-300">
+            🎥 Prefer Real-Time Detection? Open Camera
+        </a>
+
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="text-center py-6 text-white/70 text-sm">
+    © 2025 VegCheck AI | Developed with ❤️ + Deep Learning
+</footer>
+
+<script>
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("fileInput");
+
+    dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("drop-active");
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("drop-active");
+    });
+
+    dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("drop-active");
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+        }
+    });
+
+    dropArea.addEventListener("click", () => fileInput.click());
+</script>
+
+</body>
+</html>
