@@ -128,5 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-MEDIA_ROOT = r"D:\ProjectEnvironment\vegcheck_site\training\media"
+# MEDIA_ROOT = r"D:\ProjectEnvironment\vegcheck_site\training\media" gaus path
+MEDIA_ROOT = r"C:\Projects\VegCheck-AI-Powered-Vegetable-Quality-Inspector\veg" #Prithvi Path
 MEDIA_URL = "/media/"

@@ -5,7 +5,7 @@ from ultralytics import YOLO
 import torch
 
 # -------- LOAD YOLO MODEL ---------
-MODEL_PATH = r"D:\ProjectEnvironment\vegcheck_site\training\models\runs\vegcheck_local_run\weights\best.pt"
+MODEL_PATH = r"C:\Users\Prithviraj\Downloads\best(1).pt"
 MODEL = YOLO(MODEL_PATH)
 print(">>> YOLO Device:", MODEL.device)
 print(">>> Torch CUDA available:", torch.cuda.is_available())

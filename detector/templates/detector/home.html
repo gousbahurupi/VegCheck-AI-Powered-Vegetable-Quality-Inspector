@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -128,5 +128,1153 @@
     © 2025 VegCheck AI • Built with ❤️ Machine Learning & Computer Vision
 </footer>
 
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VegCheck – AI Freshness Detector</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    body { 
+        font-family: 'Inter', sans-serif;
+        color: #1a1a1a;
+        margin: 0;
+        overflow-x: hidden;
+        background: #f8faf9;
+    }
+
+    /* Light, airy background gradient */
+    .ethereal-bg {
+        background: 
+            linear-gradient(135deg, 
+                rgba(248, 250, 249, 0.97) 0%, 
+                rgba(240, 245, 242, 0.95) 50%, 
+                rgba(232, 240, 235, 0.93) 100%),
+            radial-gradient(circle at 20% 80%, rgba(139, 168, 136, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(106, 153, 78, 0.05) 0%, transparent 50%);
+        background-attachment: fixed;
+    }
+
+    /* Enhanced Interactive Particle Canvas */
+    #particles-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+    }
+
+    /* Elegant Glassmorphism */
+    .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 
+            0 8px 32px rgba(106, 153, 78, 0.08),
+            0 2px 8px rgba(0, 0, 0, 0.04),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .glass-light {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Fresh gradients */
+    .gradient-fresh {
+        background: linear-gradient(135deg, #8BA888 0%, #6A994E 100%);
+    }
+
+    .gradient-fresh-subtle {
+        background: linear-gradient(135deg, rgba(139, 168, 136, 0.1) 0%, rgba(106, 153, 78, 0.1) 100%);
+    }
+
+    /* Ultra-smooth animations */
+    @keyframes floatEthereal {
+        0%, 100% { 
+            transform: translateY(0) rotate(0deg) scale(1);
+            filter: drop-shadow(0 5px 15px rgba(106, 153, 78, 0.1));
+        }
+        33% { 
+            transform: translateY(-15px) rotate(1deg) scale(1.02);
+            filter: drop-shadow(0 8px 20px rgba(106, 153, 78, 0.15));
+        }
+        66% { 
+            transform: translateY(-8px) rotate(-0.5deg) scale(1.01);
+            filter: drop-shadow(0 6px 18px rgba(106, 153, 78, 0.12));
+        }
+    }
+
+    .float-ethereal {
+        animation: floatEthereal 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes gentlePulse {
+        0%, 100% { 
+            opacity: 0.7;
+            transform: scale(1);
+        }
+        50% { 
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    }
+
+    .gentle-pulse {
+        animation: gentlePulse 4s ease-in-out infinite;
+    }
+
+    /* Smooth fade animations with better timing */
+    .fade-in-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeUp {
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+
+    .fade-in {
+        opacity: 0;
+        animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+
+    /* Enhanced interactive elements */
+    .nav-link {
+        position: relative;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        color: #4a5568;
+    }
+
+    .nav-link:hover {
+        background: linear-gradient(135deg, rgba(139, 168, 136, 0.1) 0%, rgba(106, 153, 78, 0.1) 100%);
+        color: #6A994E;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, rgba(139, 168, 136, 0.15) 0%, rgba(106, 153, 78, 0.15) 100%);
+        color: #6A994E;
+    }
+
+    .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 1rem;
+        right: 1rem;
+        height: 2px;
+        background: linear-gradient(90deg, #8BA888, #6A994E);
+        border-radius: 2px;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(-10px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Feature cards with smooth hover */
+    .feature-card {
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(106, 153, 78, 0.15),
+            0 8px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.4), 
+            transparent);
+        transition: left 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .feature-card:hover::before {
+        left: 100%;
+    }
+
+    /* Primary button with smooth gradient shift */
+    .btn-primary {
+        background: linear-gradient(135deg, #8BA888 0%, #6A994E 100%);
+        color: white;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 15px rgba(106, 153, 78, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(106, 153, 78, 0.4);
+        background: linear-gradient(135deg, #6A994E 0%, #8BA888 100%);
+    }
+
+    .btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.3), 
+            transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+    }
+
+    .btn-primary:hover::after {
+        transform: translateX(100%);
+    }
+
+    /* Secondary button */
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(139, 168, 136, 0.3);
+        color: #6A994E;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(139, 168, 136, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
+        border-color: rgba(106, 153, 78, 0.4);
+    }
+
+    /* Status indicators */
+    .status-fresh { 
+        background: linear-gradient(135deg, rgba(106, 153, 78, 0.1) 0%, rgba(139, 168, 136, 0.1) 100%);
+        color: #6A994E;
+        border: 1px solid rgba(106, 153, 78, 0.2);
+    }
+
+    .status-moderate { 
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 213, 79, 0.1) 100%);
+        color: #ffb300;
+        border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .status-bad { 
+        background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(229, 115, 115, 0.1) 100%);
+        color: #f44336;
+        border: 1px solid rgba(244, 67, 54, 0.2);
+    }
+
+    /* Subtle scan effect */
+    @keyframes gentleScan {
+        0% { transform: translateY(-100%) rotate(45deg); opacity: 0; }
+        10% { opacity: 0.3; }
+        90% { opacity: 0.3; }
+        100% { transform: translateY(200%) rotate(45deg); opacity: 0; }
+    }
+
+    .scan-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(106, 153, 78, 0.1) 50%, 
+            transparent 100%);
+        animation: gentleScan 3s linear infinite;
+        pointer-events: none;
+    }
+
+    /* Smooth cursor glow */
+    .cursor-glow {
+        position: fixed;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, 
+            rgba(139, 168, 136, 0.15) 0%, 
+            rgba(106, 153, 78, 0.1) 30%, 
+            transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+        transform: translate(-50%, -50%) scale(1);
+        z-index: 1;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    opacity 0.3s ease;
+        filter: blur(10px);
+        opacity: 0;
+    }
+
+    .cursor-glow.active {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(139, 168, 136, 0.1);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #8BA888, #6A994E);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #6A994E, #8BA888);
+    }
+</style>
+</head>
+
+<body class="overflow-x-hidden ethereal-bg">
+
+<!-- Enhanced Cursor Glow -->
+<div class="cursor-glow"></div>
+
+<!-- Particle Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Main Content -->
+<div class="content-wrapper">
+    <!-- NAVBAR -->
+    <header class="sticky top-0 z-50 px-4 py-3 md:px-6 md:py-4">
+        <div class="glass max-w-7xl mx-auto rounded-2xl px-4 py-3 md:px-6 md:py-4 transition-all duration-300 hover:shadow-xl">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-gray-800">VegCheck<span class="text-[#6A994E]">AI</span></h1>
+                        <p class="text-xs text-gray-500 hidden md:block">Freshness Detection System</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center gap-2">
+                    <a href="/" class="nav-link active">Home</a>
+                    <a href="/upload/" class="nav-link">Upload</a>
+                    <a href="/live/" class="nav-link">Live Detection</a>
+                    <div class="mx-4 h-6 w-px bg-gray-200"></div>
+                </nav>
+                
+                <button class="md:hidden glass-light p-2.5 rounded-lg transition-all hover:bg-white/60">
+                    <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6">
+        <!-- HERO SECTION -->
+        <section class="pt-8 md:pt-12 pb-12 md:pb-20">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div class="fade-in-up">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="px-3 py-1.5 rounded-full text-sm font-medium status-fresh transition-all hover:scale-105">AI-Powered</span>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-medium status-moderate transition-all hover:scale-105">Real-Time</span>
+                        <span class="px-3 py-1.5 rounded-full text-sm font-medium glass-light transition-all hover:scale-105">YOLOv8</span>
+                    </div>
+                    
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-gray-900">
+                        Detect Freshness with<br>
+                        <span class="bg-gradient-to-r from-[#6A994E] via-[#8BA888] to-[#6A994E] bg-clip-text text-transparent">
+                            Precision AI
+                        </span>
+                    </h2>
+                    
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl">
+                        Advanced computer vision system that analyzes fruits & vegetables for freshness, 
+                        spoilage patterns, and provides actionable insights within seconds.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <a href="/upload/" class="btn-primary px-8 py-4 rounded-xl text-base font-semibold flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Upload & Analyze
+                        </a>
+                        <a href="/live/" class="btn-secondary px-8 py-4 rounded-xl text-base font-semibold flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            Live Camera Scan
+                        </a>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#6A994E] animate-pulse"></div>
+                            <span>Instant Results</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#8BA888] animate-pulse" style="animation-delay: 0.2s;"></div>
+                            <span>95% Accuracy</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-[#6A994E] animate-pulse" style="animation-delay: 0.4s;"></div>
+                            <span>50+ Vegetables</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Freshness detection visualization -->
+                <div class="relative fade-in-up stagger-1">
+                    <div class="relative glass rounded-3xl p-6 md:p-8 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+                        <div class="scan-overlay"></div>
+                        
+                        <div class="absolute inset-0 opacity-5">
+                            <div class="absolute top-4 left-4 text-4xl">🥬</div>
+                            <div class="absolute bottom-4 right-4 text-4xl">🥦</div>
+                            <div class="absolute top-1/2 left-1/4 text-3xl">🥕</div>
+                            <div class="absolute top-1/3 right-1/3 text-3xl">🍅</div>
+                        </div>
+                        
+                        <div class="relative">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-semibold text-gray-800">Freshness Detection Preview</h3>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex gap-1">
+                                        <div class="w-3 h-3 rounded-full status-bad"></div>
+                                        <div class="w-3 h-3 rounded-full status-moderate"></div>
+                                        <div class="w-3 h-3 rounded-full status-fresh"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="aspect-video rounded-xl overflow-hidden gradient-fresh-subtle relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <!-- Animated vegetable display -->
+                                    <div class="relative w-40 h-40">
+                                        <div class="absolute inset-0 flex items-center justify-center float-ethereal">
+                                            <span class="text-6xl">🥬</span>
+                                        </div>
+                                        <div class="absolute top-0 left-0 text-4xl opacity-60 gentle-pulse">🥕</div>
+                                        <div class="absolute bottom-0 right-0 text-4xl opacity-60 gentle-pulse" style="animation-delay: 0.5s;">🍅</div>
+                                        <div class="absolute top-0 right-0 text-3xl opacity-50 float-ethereal" style="animation-delay: 2s;">🥦</div>
+                                        <div class="absolute bottom-0 left-0 text-3xl opacity-50 float-ethereal" style="animation-delay: 3s;">🌶️</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 grid grid-cols-3 gap-4">
+                                <div class="text-center p-4 rounded-xl glass-light transition-all hover:scale-105">
+                                    <div class="text-2xl font-bold text-[#6A994E] mb-2">95%</div>
+                                    <div class="text-xs text-gray-600">Freshness Accuracy</div>
+                                </div>
+                                <div class="text-center p-4 rounded-xl glass-light transition-all hover:scale-105">
+                                    <div class="text-2xl font-bold text-[#8BA888] mb-2">0.8s</div>
+                                    <div class="text-xs text-gray-600">Detection Time</div>
+                                </div>
+                                <div class="text-center p-4 rounded-xl glass-light transition-all hover:scale-105">
+                                    <div class="text-2xl font-bold text-[#6A994E] mb-2">50+</div>
+                                    <div class="text-xs text-gray-600">Items Supported</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section class="py-12 md:py-16">
+            <div class="mb-10 text-center">
+                <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Advanced Freshness Detection</h3>
+                <p class="text-gray-600 max-w-3xl mx-auto">Powered by cutting-edge computer vision trained on thousands of vegetable images</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="feature-card glass p-6 rounded-2xl fade-in-up">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4 gradient-fresh shadow-md">
+                        <span class="text-2xl text-white">📸</span>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3 text-gray-900">Real-Time Scanning</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Live camera processing with instant freshness assessment and confidence scoring for multiple vegetables.</p>
+                </div>
+
+                <div class="feature-card glass p-6 rounded-2xl fade-in-up stagger-1">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4 gradient-fresh shadow-md">
+                        <span class="text-2xl text-white">📊</span>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3 text-gray-900">Detailed Analytics</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">Comprehensive freshness reports with shelf life predictions, storage tips, and consumption recommendations.</p>
+                </div>
+
+                <div class="feature-card glass p-6 rounded-2xl fade-in-up stagger-2">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4 gradient-fresh shadow-md">
+                        <span class="text-2xl text-white">🤖</span>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3 text-gray-900">AI-Powered Analysis</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">YOLOv8 model trained to detect spoilage patterns, discoloration, and texture changes in produce.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="py-12 md:py-16">
+    <div class="glass rounded-3xl p-6 md:p-8 transition-all duration-500 hover:shadow-xl overflow-hidden">
+        <!-- Subtle Animated Background -->
+        <div class="absolute inset-0 opacity-3 pointer-events-none">
+            <div class="absolute top-10 left-10 text-5xl animate-float-slow">🥦</div>
+            <div class="absolute bottom-10 right-10 text-5xl animate-float-slow" style="animation-delay: 0.5s;">🥬</div>
+            <div class="absolute top-1/3 right-1/4 text-4xl animate-float-slow" style="animation-delay: 1s;">🍅</div>
+            <div class="absolute bottom-1/3 left-1/4 text-4xl animate-float-slow" style="animation-delay: 1.5s;">🥕</div>
+        </div>
+
+        <div class="relative z-10">
+            <div class="text-center mb-12 fade-in-up">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 bg-gradient-to-r from-[#6A994E]/10 to-[#8BA888]/10 border border-[#6A994E]/20">
+                    <div class="w-2 h-2 rounded-full bg-[#6A994E] animate-pulse"></div>
+                    <span class="text-sm font-semibold text-[#6A994E]">HOW IT WORKS</span>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+                    The Freshness <span class="bg-gradient-to-r from-[#6A994E] to-[#8BA888] bg-clip-text text-transparent">Journey</span>
+                </h3>
+                <p class="text-gray-600 max-w-2xl mx-auto">Follow these four simple steps to get instant freshness analysis</p>
+            </div>
+
+            <!-- Modern Step Cards with Hover Blur Effect -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+                
+                <!-- Step 1: Capture -->
+                <div class="fade-in-up">
+                    <div class="step-card-hover group relative h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-[#6A994E]/0 rounded-2xl transition-all duration-500 group-hover:from-white/5 group-hover:via-[#6A994E]/5 group-hover:to-[#8BA888]/5"></div>
+                        
+                        <div class="relative p-6 h-full flex flex-col">
+                            <!-- Step Indicator -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#6A994E]/20 to-[#8BA888]/20 flex items-center justify-center group-hover:from-[#6A994E]/30 group-hover:to-[#8BA888]/30 transition-all duration-300">
+                                        <span class="text-lg font-bold text-[#6A994E]">1</span>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-full border border-[#6A994E]/20 group-hover:border-[#6A994E]/40 transition-all duration-300"></div>
+                                </div>
+                                <div class="h-px flex-1 bg-gradient-to-r from-[#6A994E]/10 to-transparent"></div>
+                            </div>
+
+                            <!-- Icon -->
+                            <div class="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center mx-auto bg-gradient-to-br from-white/40 to-white/60 backdrop-blur-sm border border-white/30 group-hover:from-white/50 group-hover:to-white/70 transition-all duration-300">
+                                <span class="text-3xl group-hover:scale-110 transition-transform duration-300">📸</span>
+                            </div>
+
+                            <!-- Content -->
+                            <h4 class="text-xl font-bold text-gray-900 mb-3 text-center group-hover:text-[#6A994E] transition-colors duration-300">Capture</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed text-center mb-4">
+                                Snap a photo or select from your gallery. Works with any device camera.
+                            </p>
+
+                            <!-- Hover Details (Appears on hover) -->
+                            <div class="mt-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                <div class="pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500 flex items-center justify-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-[#6A994E]"></span>
+                                        <span>Best in natural light</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Upload -->
+                <div class="fade-in-up stagger-1">
+                    <div class="step-card-hover group relative h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-[#6A994E]/0 rounded-2xl transition-all duration-500 group-hover:from-white/5 group-hover:via-[#6A994E]/5 group-hover:to-[#8BA888]/5"></div>
+                        
+                        <div class="relative p-6 h-full flex flex-col">
+                            <!-- Step Indicator -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#6A994E]/20 to-[#8BA888]/20 flex items-center justify-center group-hover:from-[#6A994E]/30 group-hover:to-[#8BA888]/30 transition-all duration-300">
+                                        <span class="text-lg font-bold text-[#6A994E]">2</span>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-full border border-[#6A994E]/20 group-hover:border-[#6A994E]/40 transition-all duration-300"></div>
+                                </div>
+                                <div class="h-px flex-1 bg-gradient-to-r from-[#6A994E]/10 to-transparent"></div>
+                            </div>
+
+                            <!-- Icon -->
+                            <div class="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center mx-auto bg-gradient-to-br from-white/40 to-white/60 backdrop-blur-sm border border-white/30 group-hover:from-white/50 group-hover:to-white/70 transition-all duration-300">
+                                <span class="text-3xl group-hover:scale-110 transition-transform duration-300">📤</span>
+                            </div>
+
+                            <!-- Content -->
+                            <h4 class="text-xl font-bold text-gray-900 mb-3 text-center group-hover:text-[#6A994E] transition-colors duration-300">Upload</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed text-center mb-4">
+                                Securely upload images to our cloud infrastructure for processing.
+                            </p>
+
+                            <!-- Hover Details -->
+                            <div class="mt-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                <div class="pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500 flex items-center justify-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-[#6A994E]"></span>
+                                        <span>Encrypted & private</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Analyze -->
+                <div class="fade-in-up stagger-2">
+                    <div class="step-card-hover group relative h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-[#6A994E]/0 rounded-2xl transition-all duration-500 group-hover:from-white/5 group-hover:via-[#6A994E]/5 group-hover:to-[#8BA888]/5"></div>
+                        
+                        <div class="relative p-6 h-full flex flex-col">
+                            <!-- Step Indicator -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#6A994E]/20 to-[#8BA888]/20 flex items-center justify-center group-hover:from-[#6A994E]/30 group-hover:to-[#8BA888]/30 transition-all duration-300">
+                                        <span class="text-lg font-bold text-[#6A994E]">3</span>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-full border border-[#6A994E]/20 group-hover:border-[#6A994E]/40 transition-all duration-300"></div>
+                                </div>
+                                <div class="h-px flex-1 bg-gradient-to-r from-[#6A994E]/10 to-transparent"></div>
+                            </div>
+
+                            <!-- Icon -->
+                            <div class="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center mx-auto bg-gradient-to-br from-white/40 to-white/60 backdrop-blur-sm border border-white/30 group-hover:from-white/50 group-hover:to-white/70 transition-all duration-300">
+                                <span class="text-3xl group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 animate-pulse">🤖</span>
+                            </div>
+
+                            <!-- Content -->
+                            <h4 class="text-xl font-bold text-gray-900 mb-3 text-center group-hover:text-[#6A994E] transition-colors duration-300">Analyze</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed text-center mb-4">
+                                AI processes images with YOLOv8 for spoilage detection and freshness scoring.
+                            </p>
+
+                            <!-- Hover Details -->
+                            <div class="mt-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                <div class="pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500 flex items-center justify-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-[#6A994E] animate-pulse"></span>
+                                        <span>Real-time analysis</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Results -->
+                <div class="fade-in-up stagger-3">
+                    <div class="step-card-hover group relative h-full">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-[#6A994E]/0 rounded-2xl transition-all duration-500 group-hover:from-white/5 group-hover:via-[#6A994E]/5 group-hover:to-[#8BA888]/5"></div>
+                        
+                        <div class="relative p-6 h-full flex flex-col">
+                            <!-- Step Indicator -->
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#6A994E]/20 to-[#8BA888]/20 flex items-center justify-center group-hover:from-[#6A994E]/30 group-hover:to-[#8BA888]/30 transition-all duration-300">
+                                        <span class="text-lg font-bold text-[#6A994E]">4</span>
+                                    </div>
+                                    <div class="absolute inset-0 rounded-full border border-[#6A994E]/20 group-hover:border-[#6A994E]/40 transition-all duration-300"></div>
+                                </div>
+                                <div class="h-px flex-1 bg-gradient-to-r from-[#6A994E]/10 to-transparent"></div>
+                            </div>
+
+                            <!-- Icon -->
+                            <div class="w-16 h-16 rounded-2xl mb-5 flex items-center justify-center mx-auto bg-gradient-to-br from-white/40 to-white/60 backdrop-blur-sm border border-white/30 group-hover:from-white/50 group-hover:to-white/70 transition-all duration-300">
+                                <span class="text-3xl group-hover:scale-110 transition-transform duration-300">📊</span>
+                            </div>
+
+                            <!-- Content -->
+                            <h4 class="text-xl font-bold text-gray-900 mb-3 text-center group-hover:text-[#6A994E] transition-colors duration-300">Results</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed text-center mb-4">
+                                Get detailed freshness reports with scores, shelf life, and storage tips.
+                            </p>
+
+                            <!-- Hover Details -->
+                            <div class="mt-auto opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                <div class="pt-4 border-t border-gray-100">
+                                    <div class="text-xs text-gray-500 flex items-center justify-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-[#6A994E]"></span>
+                                        <span>Actionable insights</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connecting Flow (Desktop) -->
+            <div class="hidden lg:block relative mt-8">
+                <div class="absolute left-0 right-0 top-1/2 h-px bg-gradient-to-r from-transparent via-[#6A994E]/20 to-transparent transform -translate-y-1/2"></div>
+                <div class="flex justify-between">
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-white to-white border-2 border-[#6A994E]/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-[#6A994E]"></div>
+                    </div>
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-white to-white border-2 border-[#6A994E]/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-[#6A994E]"></div>
+                    </div>
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-white to-white border-2 border-[#6A994E]/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-[#6A994E]"></div>
+                    </div>
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-white to-white border-2 border-[#6A994E]/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-[#6A994E]"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- CTA -->
+            
+        </div>
+    </div>
+
+    <style>
+        /* Custom animations */
+        @keyframes float-slow {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-8px) rotate(1deg);
+            }
+            66% {
+                transform: translateY(-4px) rotate(-0.5deg);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .animate-float-slow {
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .animate-shimmer {
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        /* Step card hover effect */
+        .step-card-hover {
+            border: 1px solid rgba(139, 168, 136, 0.1);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .step-card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(106, 153, 78, 0.12),
+                        0 8px 16px rgba(0, 0, 0, 0.04);
+            border-color: rgba(106, 153, 78, 0.2);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Ensure equal height on cards */
+        .step-card-hover > .relative {
+            min-height: 100%;
+        }
+    </style>
+</section>
+        <!-- VEGETABLE TYPES SUPPORTED -->
+        <section class="py-12 md:py-16">
+            <div class="text-center mb-10">
+                <h3 class="text-3xl font-bold mb-4 text-gray-900">Supported Produce</h3>
+                <p class="text-gray-600">Detect freshness across a wide variety of fruits and vegetables</p>
+            </div>
+            
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-4">
+                <!-- Vegetable icons grid -->
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🥦</div>
+                    <div class="text-xs text-gray-600">Broccoli</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🥕</div>
+                    <div class="text-xs text-gray-600">Carrot</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🍅</div>
+                    <div class="text-xs text-gray-600">Tomato</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🥬</div>
+                    <div class="text-xs text-gray-600">Lettuce</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🫑</div>
+                    <div class="text-xs text-gray-600">Bell Pepper</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🍆</div>
+                    <div class="text-xs text-gray-600">Eggplant</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🥔</div>
+                    <div class="text-xs text-gray-600">Potato</div>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover:gradient-fresh-subtle transition-all duration-300 cursor-pointer group hover:scale-105">
+                    <div class="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">🧅</div>
+                    <div class="text-xs text-gray-600">Onion</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA SECTION -->
+        <section class="py-12 md:py-16">
+            <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div class="fade-in-up">
+                    <h3 class="text-3xl font-bold mb-6 text-gray-900">Start Detecting Freshness Today</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        Join thousands of users who trust VegCheckAI for accurate, instant freshness detection. 
+                        Upload images or use live camera to analyze your produce in seconds.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="/upload/" class="btn-primary px-8 py-4 rounded-xl font-semibold text-center">
+                            Start Free Analysis
+                        </a>
+                        <a href="/live/" class="btn-secondary px-8 py-4 rounded-xl font-semibold text-center">
+                            View Live Demo
+                        </a>
+                    </div>
+                </div>
+
+                <div class="glass rounded-3xl p-6 fade-in-up stagger-1 transition-all duration-300 hover:shadow-xl">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="text-center p-4 rounded-xl gradient-fresh-subtle transition-all hover:scale-105">
+                            <div class="text-3xl font-bold text-[#6A994E] mb-2">50+</div>
+                            <div class="text-sm text-gray-600">Vegetable Types</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl gradient-fresh-subtle transition-all hover:scale-105">
+                            <div class="text-3xl font-bold text-[#6A994E] mb-2">95.2%</div>
+                            <div class="text-sm text-gray-600">Accuracy Rate</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl gradient-fresh-subtle transition-all hover:scale-105">
+                            <div class="text-3xl font-bold text-[#8BA888] mb-2">0.8s</div>
+                            <div class="text-sm text-gray-600">Avg. Processing</div>
+                        </div>
+                        <div class="text-center p-4 rounded-xl gradient-fresh-subtle transition-all hover:scale-105">
+                            <div class="text-3xl font-bold text-[#6A994E] mb-2">10K+</div>
+                            <div class="text-sm text-gray-600">Analyses Done</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-3">
+                </div>   
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // Enhanced Interactive Particle System with Lighter Effects
+    class EnhancedParticles {
+        constructor() {
+            this.canvas = document.getElementById('particles-canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.particles = [];
+            this.mouse = { x: -1000, y: -1000, radius: 120 };
+            this.vegetableShapes = ['🥕', '🍅', '🥦', '🥬', '🫑', '🍆', '🥔', '🧅'];
+            
+            this.init();
+            this.animate();
+            this.bindEvents();
+        }
+
+        init() {
+            this.resizeCanvas();
+            this.createParticles();
+        }
+
+        resizeCanvas() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
+
+        createParticles() {
+            const particleCount = Math.min(60, Math.floor((window.innerWidth * window.innerHeight) / 20000));
+            
+            for (let i = 0; i < particleCount; i++) {
+                this.particles.push({
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    size: Math.random() * 16 + 8,
+                    speedX: Math.random() * 0.3 - 0.15,
+                    speedY: Math.random() * 0.3 - 0.15,
+                    color: this.getRandomVegetableColor(),
+                    shape: this.vegetableShapes[Math.floor(Math.random() * this.vegetableShapes.length)],
+                    opacity: Math.random() * 0.3 + 0.1,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 0.8 - 0.4,
+                    waveOffset: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        getRandomVegetableColor() {
+            const colors = [
+                '#8BA888', // Light sage
+                '#A8C6A3', // Very light green
+                '#6A994E', // Fresh green
+                '#94B490', // Muted green
+                '#8BA888'  // Sage green
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        bindEvents() {
+            const cursorGlow = document.querySelector('.cursor-glow');
+            
+            window.addEventListener('mousemove', (e) => {
+                this.mouse.x = e.x;
+                this.mouse.y = e.y;
+                
+                // Smooth cursor glow
+                cursorGlow.style.left = `${e.x}px`;
+                cursorGlow.style.top = `${e.y}px`;
+                cursorGlow.classList.add('active');
+                
+                // Reset mouse position timeout
+                clearTimeout(this.mouseTimeout);
+                this.mouseTimeout = setTimeout(() => {
+                    this.mouse.x = -1000;
+                    this.mouse.y = -1000;
+                    cursorGlow.classList.remove('active');
+                }, 100);
+            });
+
+            window.addEventListener('resize', () => {
+                this.resizeCanvas();
+                this.particles = [];
+                this.createParticles();
+            });
+
+            // Touch support
+            window.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                this.mouse.x = touch.clientX;
+                this.mouse.y = touch.clientY;
+                
+                cursorGlow.style.left = `${touch.clientX}px`;
+                cursorGlow.style.top = `${touch.clientY}px`;
+                cursorGlow.classList.add('active');
+            });
+
+            window.addEventListener('touchend', () => {
+                this.mouse.x = -1000;
+                this.mouse.y = -1000;
+                cursorGlow.classList.remove('active');
+            });
+        }
+
+        animate() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Draw connection lines
+            this.drawConnections();
+            
+            // Update and draw particles
+            for (let i = 0; i < this.particles.length; i++) {
+                const p = this.particles[i];
+                const time = Date.now() * 0.001;
+                
+                // Add gentle wave motion
+                p.x += Math.sin(time + p.waveOffset) * 0.1;
+                p.y += Math.cos(time + p.waveOffset) * 0.1;
+                
+                // Interactive movement with mouse
+                const dx = this.mouse.x - p.x;
+                const dy = this.mouse.y - p.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.mouse.radius) {
+                    const force = (this.mouse.radius - distance) / this.mouse.radius;
+                    p.x -= dx * force * 0.03;
+                    p.y -= dy * force * 0.03;
+                }
+                
+                // Normal movement with boundary checking
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.rotation += p.rotationSpeed;
+                
+                // Wrap around edges
+                if (p.x > this.canvas.width + 50) p.x = -50;
+                if (p.x < -50) p.x = this.canvas.width + 50;
+                if (p.y > this.canvas.height + 50) p.y = -50;
+                if (p.y < -50) p.y = this.canvas.height + 50;
+                
+                // Draw particle with smooth rotation
+                this.ctx.save();
+                this.ctx.translate(p.x, p.y);
+                this.ctx.rotate(p.rotation * Math.PI / 180);
+                this.ctx.globalAlpha = p.opacity;
+                this.ctx.font = `${p.size}px Arial`;
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillStyle = p.color;
+                this.ctx.fillText(p.shape, 0, 0);
+                this.ctx.restore();
+            }
+            
+            requestAnimationFrame(() => this.animate());
+        }
+
+        drawConnections() {
+            for (let i = 0; i < this.particles.length; i++) {
+                for (let j = i + 1; j < this.particles.length; j++) {
+                    const dx = this.particles[i].x - this.particles[j].x;
+                    const dy = this.particles[i].y - this.particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 120) {
+                        const alpha = 0.1 * (1 - distance/120);
+                        this.ctx.beginPath();
+                        this.ctx.strokeStyle = `rgba(139, 168, 136, ${alpha})`;
+                        this.ctx.lineWidth = 0.5;
+                        this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
+                        this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+                        this.ctx.stroke();
+                    }
+                }
+            }
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize enhanced particles
+        new EnhancedParticles();
+        
+        // Smooth scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const delay = entry.target.classList.contains('stagger-1') ? 100 :
+                                 entry.target.classList.contains('stagger-2') ? 200 :
+                                 entry.target.classList.contains('stagger-3') ? 300 :
+                                 entry.target.classList.contains('stagger-4') ? 400 : 0;
+                    
+                    setTimeout(() => {
+                        entry.target.style.animationPlayState = 'running';
+                    }, delay);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        document.querySelectorAll('.fade-in-up, .fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth hover effects for vegetable cards
+        document.querySelectorAll('[class*="grid-cols-"] > div').forEach(vegCard => {
+            vegCard.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px) scale(1.05)';
+            });
+            
+            vegCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Mobile menu with smooth animation
+        const mobileMenuBtn = document.querySelector('button.md\\:hidden');
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                const nav = document.querySelector('nav.hidden.md\\:flex');
+                if (nav) {
+                    nav.classList.toggle('hidden');
+                    if (!nav.classList.contains('hidden')) {
+                        nav.classList.add('animate-slideDown');
+                    }
+                }
+            });
+        }
+
+        // Add CSS animation for mobile menu
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-slideDown {
+                animation: slideDown 0.3s ease-out;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
 </body>
 </html>
