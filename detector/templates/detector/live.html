@@ -1,4 +1,4 @@
-<!-- templates/detector/live.html -->
+{% comment %} <!-- templates/detector/live.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,5 +21,597 @@
       <p class="mt-4 text-sm text-gray-600">Note: Server does inference frame-by-frame; performance depends on server hardware.</p>
     </div>
   </main>
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VegCheck - Live Camera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      margin: 0;
+      overflow-x: hidden;
+      background: #f8faf9;
+    }
+
+    /* Light, airy background gradient */
+    .ethereal-bg {
+      background: 
+          linear-gradient(135deg, 
+              rgba(248, 250, 249, 0.97) 0%, 
+              rgba(240, 245, 242, 0.95) 50%, 
+              rgba(232, 240, 235, 0.93) 100%),
+          radial-gradient(circle at 20% 80%, rgba(139, 168, 136, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(106, 153, 78, 0.05) 0%, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    /* Interactive Particle Canvas */
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+    }
+
+    /* Elegant Glassmorphism */
+    .glass {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 
+          0 8px 32px rgba(106, 153, 78, 0.08),
+          0 2px 8px rgba(0, 0, 0, 0.04),
+          inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .glass-light {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    /* Fresh gradients */
+    .gradient-fresh {
+      background: linear-gradient(135deg, #8BA888 0%, #6A994E 100%);
+    }
+
+    .gradient-fresh-subtle {
+      background: linear-gradient(135deg, rgba(139, 168, 136, 0.1) 0%, rgba(106, 153, 78, 0.1) 100%);
+    }
+
+    /* Smooth animations */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeUp {
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { 
+        opacity: 0.7;
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    .gentle-pulse {
+      animation: gentlePulse 4s ease-in-out infinite;
+    }
+
+    /* Interactive elements */
+    .nav-link {
+      position: relative;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: #4a5568;
+    }
+
+    .nav-link:hover {
+      background: linear-gradient(135deg, rgba(139, 168, 136, 0.1) 0%, rgba(106, 153, 78, 0.1) 100%);
+      color: #6A994E;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(106, 153, 78, 0.1);
+    }
+
+    .nav-link.active {
+      background: linear-gradient(135deg, rgba(139, 168, 136, 0.15) 0%, rgba(106, 153, 78, 0.15) 100%);
+      color: #6A994E;
+    }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 1rem;
+      right: 1rem;
+      height: 2px;
+      background: linear-gradient(90deg, #8BA888, #6A994E);
+      border-radius: 2px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-10px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Live camera specific styles */
+    .live-camera-container {
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .live-camera-container:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(106, 153, 78, 0.15);
+    }
+
+    /* Scan animation for live detection */
+    @keyframes scanLine {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, 
+          transparent, 
+          rgba(106, 153, 78, 0.8), 
+          transparent);
+      animation: scanLine 2s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    /* Status indicators */
+    .status-fresh { 
+      background: linear-gradient(135deg, rgba(106, 153, 78, 0.1) 0%, rgba(139, 168, 136, 0.1) 100%);
+      color: #6A994E;
+      border: 1px solid rgba(106, 153, 78, 0.2);
+    }
+
+    .status-moderate { 
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 213, 79, 0.1) 100%);
+      color: #ffb300;
+      border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .status-bad { 
+      background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(229, 115, 115, 0.1) 100%);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.2);
+    }
+
+    /* Button animations */
+    @keyframes pulseGreen {
+      0%, 100% { box-shadow: 0 4px 12px rgba(106, 153, 78, 0.3); }
+      50% { box-shadow: 0 4px 20px rgba(106, 153, 78, 0.6); }
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3); }
+      50% { box-shadow: 0 4px 20px rgba(244, 67, 54, 0.6); }
+    }
+
+    .btn-pulse-green {
+      animation: pulseGreen 2s infinite;
+    }
+
+    .btn-pulse-red {
+      animation: pulseRed 2s infinite;
+    }
+
+    /* Camera controls */
+    .camera-controls {
+      transition: all 0.3s ease;
+    }
+
+    .btn-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  </style>
+</head>
+
+<body class="overflow-x-hidden ethereal-bg">
+
+<!-- Interactive Particle Canvas -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- Main Content -->
+<div class="content-wrapper">
+  <!-- NAVBAR -->
+  <header class="sticky top-0 z-50 px-4 py-3 md:px-6 md:py-4">
+    <div class="glass max-w-7xl mx-auto rounded-2xl px-4 py-3 md:px-6 md:py-4 transition-all duration-300 hover:shadow-xl">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">VegCheck<span class="text-[#6A994E]">AI</span></h1>
+            <p class="text-xs text-gray-500 hidden md:block">Freshness Detection System</p>
+          </div>
+        </div>
+        
+        <nav class="hidden md:flex items-center gap-2">
+          <a href="/" class="nav-link">Home</a>
+          <a href="/upload/" class="nav-link">Upload</a>
+          <a href="/live/" class="nav-link active">Live Detection</a>
+          <div class="mx-4 h-6 w-px bg-gray-200"></div>
+        </nav>
+        
+        <button class="md:hidden glass-light p-2.5 rounded-lg transition-all hover:bg-white/60">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-6 max-w-7xl">
+    <div class="glass rounded-3xl p-6 md:p-8 live-camera-container fade-in-up">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-full gradient-fresh flex items-center justify-center">
+          <span class="text-white text-lg">🎥</span>
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Live Camera Detection</h1>
+          <p class="text-sm text-gray-600">Server-side processing with real-time AI analysis</p>
+        </div>
+      </div>
+
+      <div class="mb-6 flex flex-wrap gap-3">
+        <span class="px-3 py-1.5 rounded-full text-sm font-medium status-fresh transition-all hover:scale-105">AI-Powered</span>
+        <span class="px-3 py-1.5 rounded-full text-sm font-medium status-moderate transition-all hover:scale-105">Real-Time</span>
+        <span class="px-3 py-1.5 rounded-full text-sm font-medium glass-light transition-all hover:scale-105">YOLOv8</span>
+      </div>
+
+      <p class="mb-6 text-gray-700">
+        Live feed processed on server — detections drawn on each frame with advanced computer vision.
+      </p>
+      
+      <div class="relative rounded-xl overflow-hidden border-2 border-[#6A994E]/20 bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-sm">
+        <div class="scan-line"></div>
+        <img id="liveImg" src="" class="w-full rounded-lg transition-all duration-500 hover:scale-[1.01]" alt="Live feed">
+        
+        <!-- Placeholder when camera is stopped -->
+        <div id="cameraPlaceholder" class="absolute inset-0 flex items-center justify-center bg-gray-50/80 hidden">
+          <div class="text-center p-8">
+            <div class="w-16 h-16 rounded-full gradient-fresh-subtle flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">📷</span>
+            </div>
+            <p class="text-gray-600 font-medium">Camera feed stopped</p>
+            <p class="text-sm text-gray-500 mt-1">Click "Start Camera" to begin detection</p>
+          </div>
+        </div>
+        
+        <div class="absolute top-4 right-4 flex gap-2">
+          <div id="statusLed" class="w-3 h-3 rounded-full bg-gray-400"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500 animate-pulse" style="animation-delay: 0.2s;"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse" style="animation-delay: 0.4s;"></div>
+        </div>
+      </div>
+
+      <!-- Camera Controls -->
+      <div class="mt-6 flex flex-wrap gap-4 justify-center camera-controls">
+        <button id="startBtn" class="gradient-fresh text-white px-8 py-3.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-3 btn-pulse-green">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Start Camera
+        </button>
+        
+        <button id="stopBtn" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-3 btn-disabled">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+          </svg>
+          Stop Camera
+        </button>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="glass-light p-4 rounded-xl transition-all duration-300 hover:scale-105">
+          <div class="text-sm font-medium text-gray-700 mb-1">Processing Status</div>
+          <div id="statusText" class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+            <span class="text-sm text-gray-600">Ready to start</span>
+          </div>
+        </div>
+        
+        <div class="glass-light p-4 rounded-xl transition-all duration-300 hover:scale-105">
+          <div class="text-sm font-medium text-gray-700 mb-1">Detection Method</div>
+          <div class="text-sm text-gray-600">Server-side inference</div>
+        </div>
+        
+        <div class="glass-light p-4 rounded-xl transition-all duration-300 hover:scale-105">
+          <div class="text-sm font-medium text-gray-700 mb-1">Performance</div>
+          <div class="text-sm text-gray-600">Depends on server hardware</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-200 mt-12">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Simple Particle System for Background
+  class SimpleParticles {
+    constructor() {
+      this.canvas = document.getElementById('particles-canvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.particles = [];
+      this.vegetableShapes = ['🥕', '🍅', '🥦', '🥬', '🫑', '🍆', '🥔', '🧅'];
+      
+      this.init();
+      this.animate();
+    }
+
+    init() {
+      this.resizeCanvas();
+      this.createParticles();
+      window.addEventListener('resize', () => {
+        this.resizeCanvas();
+        this.particles = [];
+        this.createParticles();
+      });
+    }
+
+    resizeCanvas() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    createParticles() {
+      const particleCount = Math.min(40, Math.floor((window.innerWidth * window.innerHeight) / 25000));
+      
+      for (let i = 0; i < particleCount; i++) {
+        this.particles.push({
+          x: Math.random() * this.canvas.width,
+          y: Math.random() * this.canvas.height,
+          size: Math.random() * 12 + 8,
+          speedX: Math.random() * 0.2 - 0.1,
+          speedY: Math.random() * 0.2 - 0.1,
+          color: this.getRandomColor(),
+          shape: this.vegetableShapes[Math.floor(Math.random() * this.vegetableShapes.length)],
+          opacity: Math.random() * 0.2 + 0.1,
+          rotation: Math.random() * 360,
+          rotationSpeed: Math.random() * 0.4 - 0.2,
+        });
+      }
+    }
+
+    getRandomColor() {
+      const colors = ['#8BA888', '#A8C6A3', '#6A994E', '#94B490', '#8BA888'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    animate() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      for (let i = 0; i < this.particles.length; i++) {
+        const p = this.particles[i];
+        
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.rotation += p.rotationSpeed;
+        
+        if (p.x > this.canvas.width + 50) p.x = -50;
+        if (p.x < -50) p.x = this.canvas.width + 50;
+        if (p.y > this.canvas.height + 50) p.y = -50;
+        if (p.y < -50) p.y = this.canvas.height + 50;
+        
+        this.ctx.save();
+        this.ctx.translate(p.x, p.y);
+        this.ctx.rotate(p.rotation * Math.PI / 180);
+        this.ctx.globalAlpha = p.opacity;
+        this.ctx.font = `${p.size}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = p.color;
+        this.ctx.fillText(p.shape, 0, 0);
+        this.ctx.restore();
+      }
+      
+      requestAnimationFrame(() => this.animate());
+    }
+  }
+
+  // Camera Control Functions
+  class CameraController {
+    constructor() {
+      this.isStreaming = false;
+      this.liveImg = document.getElementById('liveImg');
+      this.startBtn = document.getElementById('startBtn');
+      this.stopBtn = document.getElementById('stopBtn');
+      this.statusLed = document.getElementById('statusLed');
+      this.statusText = document.getElementById('statusText');
+      this.cameraPlaceholder = document.getElementById('cameraPlaceholder');
+      this.scanLine = document.querySelector('.scan-line');
+      
+      this.init();
+    }
+
+    init() {
+      this.startBtn.addEventListener('click', () => this.startCamera());
+      this.stopBtn.addEventListener('click', () => this.stopCamera());
+      
+      // Initial state
+      this.updateUI();
+    }
+
+    startCamera() {
+      if (this.isStreaming) return;
+      
+      console.log('Starting camera feed...');
+      this.isStreaming = true;
+      
+      // Start the live feed - replace with your actual live feed URL
+      const liveFeedUrl = "{% url 'detector:live_feed' %}";
+      this.liveImg.src = liveFeedUrl;
+      
+      // Show scanning animation
+      this.scanLine.style.display = 'block';
+      
+      // Update UI
+      this.updateUI();
+      
+      // Simulate connection delay
+      setTimeout(() => {
+        if (this.isStreaming) {
+          console.log('Camera feed started successfully');
+        }
+      }, 500);
+    }
+
+    stopCamera() {
+      if (!this.isStreaming) return;
+      
+      console.log('Stopping camera feed...');
+      this.isStreaming = false;
+      
+      // Stop the live feed
+      this.liveImg.src = '';
+      
+      // Hide scanning animation
+      this.scanLine.style.display = 'none';
+      
+      // Update UI
+      this.updateUI();
+      
+      console.log('Camera feed stopped');
+    }
+
+    updateUI() {
+      // Update buttons
+      if (this.isStreaming) {
+        this.startBtn.classList.add('btn-disabled');
+        this.startBtn.classList.remove('btn-pulse-green');
+        this.startBtn.disabled = true;
+        
+        this.stopBtn.classList.remove('btn-disabled');
+        this.stopBtn.classList.add('btn-pulse-red');
+        this.stopBtn.disabled = false;
+        
+        // Update status LED and text
+        this.statusLed.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+        this.statusText.innerHTML = `
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+          <span class="text-sm text-gray-600">Active - Streaming live feed</span>
+        `;
+        
+        // Hide placeholder
+        this.cameraPlaceholder.classList.add('hidden');
+        this.liveImg.classList.remove('hidden');
+      } else {
+        this.startBtn.classList.remove('btn-disabled');
+        this.startBtn.classList.add('btn-pulse-green');
+        this.startBtn.disabled = false;
+        
+        this.stopBtn.classList.add('btn-disabled');
+        this.stopBtn.classList.remove('btn-pulse-red');
+        this.stopBtn.disabled = true;
+        
+        // Update status LED and text
+        this.statusLed.className = 'w-3 h-3 rounded-full bg-gray-400';
+        this.statusText.innerHTML = `
+          <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+          <span class="text-sm text-gray-600">Ready to start</span>
+        `;
+        
+        // Show placeholder
+        this.cameraPlaceholder.classList.remove('hidden');
+        this.liveImg.classList.add('hidden');
+      }
+    }
+  }
+
+  // Initialize when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize particle system
+    new SimpleParticles();
+    
+    // Initialize camera controller
+    const cameraController = new CameraController();
+    
+    // Animation observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+    
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Mobile menu
+    const mobileMenuBtn = document.querySelector('button.md\\:hidden');
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function() {
+        const nav = document.querySelector('nav.hidden.md\\:flex');
+        if (nav) {
+          nav.classList.toggle('hidden');
+          if (!nav.classList.contains('hidden')) {
+            nav.style.animation = 'slideDown 0.3s ease-out';
+          }
+        }
+      });
+    }
+
+    // Add CSS animation for mobile menu
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>
 </body>
 </html>
