@@ -124,7 +124,7 @@ def get_suggestion_for_class(cls_name, avg_conf_percent):
     # Fresh cases
     if "fresh" in cls:
         if conf >= 85:
-            return f"✅ {item.title()} appears fresh (confidence {conf}%). Suggest storing at recommended temperature and shelf-life: keep cool, use within standard shelf-life. Try recipes: fresh salads, raw consumption."
+            return f"✅ {item.title()} appears fresh (confidence {conf}%). Suggest storing  at recommended temperature and shelf-life: keep cool, use within standard shelf-life. Try recipes: fresh salads, raw consumption."
         if 60 <= conf < 85:
             return f"🟢 {item.title()} likely fresh (confidence {conf}%). Store in a cool, dry place or refrigerator (if applicable). Good for cooking or salads within 2–5 days."
         if 30 <= conf < 60:
