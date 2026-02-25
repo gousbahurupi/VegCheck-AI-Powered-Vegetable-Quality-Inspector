@@ -1,12 +1,13 @@
 # detector/utils.py
+import os
 import cv2
 import numpy as np
 from ultralytics import YOLO
 import torch
 
 # -------- LOAD YOLO MODEL ---------
-MODEL_PATH = r"C:\Users\Prithviraj\Downloads\best(1).pt"
-MODEL = YOLO(MODEL_PATH)
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "best.pt")
+MODEL = YOLO(MODEL_PATH)    
 print(">>> YOLO Device:", MODEL.device)
 print(">>> Torch CUDA available:", torch.cuda.is_available())
 
