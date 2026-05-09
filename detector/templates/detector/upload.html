@@ -471,11 +471,6 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="border-t border-gray-200 mt-12">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-8 text-center">
-            <p class="text-gray-600 text-sm">© 2025 VegCheck AI | Developed with ❤️ + Deep Learning</p>
-        </div>
-    </footer>
 </div>
 
 <script>
@@ -635,6 +630,8 @@
                 previewImage.src = e.target.result;
                 previewContainer.classList.remove('hidden');
                 previewContainer.classList.add('fade-in-up');
+                // HIDE the drop area
+                dropArea.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }
@@ -667,10 +664,11 @@
             }
         });
 
-        // Clear preview
+        // Clear preview and show drop area again
         clearPreview.addEventListener('click', () => {
             previewContainer.classList.add('hidden');
             fileInput.value = '';
+            dropArea.style.display = 'block';   // SHOW the drop area
         });
 
         // Add CSS animation for mobile menu
