@@ -7,7 +7,7 @@ import torch
 
 # -------- LOAD YOLO MODEL ---------
 # MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "best.pt")
-MODEL = YOLO(r"C:\Users\Prithviraj\Downloads\best(1).pt")  #path for the model   
+MODEL = YOLO(r"D:\ProjectEnvironment\vegcheck_site\detector\model\best.pt")  #path for the model   
 print(">>> YOLO Device:", MODEL.device)
 print(">>> Torch CUDA available:", torch.cuda.is_available())
 
