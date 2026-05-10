@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # =========================
-# SECURITY SETTINGS
+# SECURITY
 # =========================
 
 SECRET_KEY = os.environ.get(
@@ -21,12 +21,10 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get(
     'DEBUG',
-    'False'
+    'True'
 ) == 'True'
 
-ALLOWED_HOSTS = [
-    '*'
-]
+ALLOWED_HOSTS = ['*']
 
 
 # =========================
@@ -41,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Custom apps
+    # Custom app
     'detector',
 ]
 
@@ -66,7 +64,7 @@ MIDDLEWARE = [
 
 
 # =========================
-# URLS & WSGI
+# URLS
 # =========================
 
 ROOT_URLCONF = 'vegcheck_site.urls'
@@ -81,8 +79,14 @@ WSGI_APPLICATION = 'vegcheck_site.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+
+        # IMPORTANT
+        'DIRS': [
+            BASE_DIR / "templates",
+        ],
+
         'APP_DIRS': True,
+
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -98,13 +102,11 @@ TEMPLATES = [
 # DATABASE
 # =========================
 
-# SQLite (No external DB required)
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
 
 
@@ -147,8 +149,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Local static folders
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
+# Collected static files
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise storage
 STATICFILES_STORAGE = (
     'whitenoise.storage.CompressedManifestStaticFilesStorage'
 )
@@ -160,7 +169,7 @@ STATICFILES_STORAGE = (
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # =========================
