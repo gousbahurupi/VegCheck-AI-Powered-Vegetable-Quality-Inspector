@@ -1,1 +1,1 @@
-web: gunicorn vegcheck_site.wsgi
+web: gunicorn vegcheck_site.wsgi:application

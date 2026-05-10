@@ -13,9 +13,12 @@ db.sqlite3
 # Training artifacts (large files)
 training/
 training/*
-*.pt
 *.onnx
 *.tflite
+
+# Ignore all .pt EXCEPT deployment model
+*.pt
+!detector/model/best.pt
 
 # OS files
 .DS_Store
