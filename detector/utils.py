@@ -6,11 +6,19 @@ from ultralytics import YOLO
 import torch
 
 # -------- LOAD YOLO MODEL ---------
-# MODEL_PATH = os.path.join(os.path.dirname(__file__), "model", "best.pt")
-MODEL = YOLO(r"D:\ProjectEnvironment\vegcheck_site\detector\model\best.pt")  #path for the model   
+
+# Base directory of detector app
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Model path
+MODEL_PATH = os.path.join(BASE_DIR, "model", "best.pt")
+
+# Load model
+MODEL = YOLO(MODEL_PATH)
+
+print(">>> MODEL PATH:", MODEL_PATH)
 print(">>> YOLO Device:", MODEL.device)
 print(">>> Torch CUDA available:", torch.cuda.is_available())
-
 # -------- DRAW DETECTIONS ---------
 def draw_detections(image_bgr, results):
     """Draw bounding boxes and labels on a BGR image (cv2 format)."""
