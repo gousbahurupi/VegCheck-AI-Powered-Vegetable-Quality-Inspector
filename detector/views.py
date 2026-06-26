@@ -118,7 +118,32 @@ def live_page(request):
     # simple page that shows <img src="/detector/live_feed/">
     return render(request, 'detector/live.html')
 
+def get_youtube_link(class_name):
+    """
+    Generate YouTube search URL based on detected class.
+    """
+
+    cls = class_name.lower()
+
+    fruit = (
+        cls.replace("fresh_", "")
+           .replace("rotten_", "")
+           .replace("_", " ")
+    )
+
+    if "rotten" in cls:
+        return {
+            "button": "♻️ Waste Disposal Video",
+            "url": f"https://www.youtube.com/results?search_query={fruit.replace(' ','+')}+waste+disposal+composting"
+        }
+
+    return {
+        "button": "▶ Related Videos",
+        "url": f"https://www.youtube.com/results?search_query={fruit.replace(' ','+')}+recipes+health+benefits+storage"
+    }
+    
 def process_image_upload(request):
+    
     """
     POST endpoint for single image upload -> runs YOLO -> returns result page
     """
@@ -157,10 +182,20 @@ def process_image_upload(request):
     pct = compute_percentages(stats)
 
     # Suggestions: based on class avg confidence
+    # Suggestions + Related YouTube Videos
     suggestions = {}
+
     for cls_name, cnt in stats.get("counts", {}).items():
+
         avg_conf = stats.get("class_conf_avg", {}).get(cls_name, 0.0)
-        suggestions[cls_name] = get_suggestion_for_class(cls_name, avg_conf)
+
+        yt = get_youtube_link(cls_name)
+
+        suggestions[cls_name] = {
+            "text": get_suggestion_for_class(cls_name, avg_conf),
+            "button": yt["button"],
+            "youtube": yt["url"]
+        }
 
     # overall advice
     try:

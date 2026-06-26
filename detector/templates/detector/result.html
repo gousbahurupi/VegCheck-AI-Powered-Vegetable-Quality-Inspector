@@ -1,150 +1,171 @@
-{% comment %} <!DOCTYPE html>
+{% comment %}
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8" />
-<title>VegCheck - Result</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-  body { font-family: 'Poppins', sans-serif; }
-  .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.16); }
-  .badge { padding: 0.25rem 0.6rem; border-radius: 999px; font-weight:600; }
-</style>
+    <meta charset="utf-8" />
+    <title>VegCheck - Result</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+    </style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-[#0f3d2e] via-[#18764b] to-[#30c16a] text-white">
 
-<header class="glass sticky top-0 z-40 px-8 py-4 flex justify-between items-center rounded-b-xl">
-  <h1 class="text-2xl font-bold">🥕 VegCheck • Results</h1>
-  <nav class="flex gap-4">
-    <a href="{% url 'detector:upload' %}" class="glass px-4 py-2 rounded hover:scale-105">Upload</a>
-    <a href="{% url 'detector:live' %}" class="glass px-4 py-2 rounded hover:scale-105">Live</a>
-  </nav>
-</header>
+    <header class="glass sticky top-0 z-40 px-8 py-4 flex justify-between items-center rounded-b-xl">
+        <h1 class="text-2xl font-bold">🥕 VegCheck • Results</h1>
+        <nav class="flex gap-4">
+            <a href="{% url 'detector:upload' %}" class="glass px-4 py-2 rounded hover:scale-105">Upload</a>
+            <a href="{% url 'detector:live' %}" class="glass px-4 py-2 rounded hover:scale-105">Live</a>
+        </nav>
+    </header>
 
-<main class="container mx-auto px-6 py-10">
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="container mx-auto px-6 py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <!-- LEFT: Annotated image -->
-    <div class="glass p-6 rounded-2xl shadow-lg">
-      <h2 class="text-xl font-semibold mb-4">Annotated Image</h2>
-      <img src="{{ annotated }}" alt="Annotated" class="w-full rounded-lg border">
-      <p class="mt-4 text-white/85">Total detected: <strong>{{ total }}</strong> |
-        Fresh: <strong>{{ fresh_count }}</strong> |
-        Rotten: <strong>{{ rotten_count }}</strong></p>
+            <!-- LEFT: Annotated image -->
+            <div class="glass p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4">Annotated Image</h2>
+                <img src="{{ annotated }}" alt="Annotated" class="w-full rounded-lg border">
+                <p class="mt-4 text-white/85">Total detected: <strong>{{ total }}</strong> |
+                    Fresh: <strong>{{ fresh_count }}</strong> |
+                    Rotten: <strong>{{ rotten_count }}</strong></p>
 
-      <div class="mt-4">
-        <h4 class="font-semibold">Overall Advice</h4>
-        <p class="text-white/90 mt-2">{{ overall_advice }}</p>
-      </div>
-    </div>
-
-    <!-- MIDDLE: Summary & Charts -->
-    <div class="glass p-6 rounded-2xl shadow-lg">
-      <h2 class="text-xl font-semibold mb-4">Summary</h2>
-
-      <div class="flex items-center gap-6">
-        <div class="w-50 h-50">
-          <canvas id="freshDonut"></canvas>
-          <div class="text-center mt-2 text-sm">
-            <div>Fresh: <strong>{{ fresh_pct_count }}% || Rotten: <strong>{{ rotten_pct_count }}%</strong></strong></div>
-            <div></div>
-          </div>
-        </div>
-
-        <div class="flex-1">
-          <h4 class="font-semibold">Confidence Averages</h4>
-          <p class="text-white/85 mt-2">Fresh avg: <strong>{{ fresh_avg_conf }}%</strong></p>
-          <p class="text-white/85">Rotten avg: <strong>{{ rotten_avg_conf }}%</strong></p>
-        </div>
-      </div>
-
-      <div class="mt-6">
-        <h4 class="font-semibold mb-2">Per-class counts</h4>
-        <canvas id="classBar"></canvas>
-      </div>
-    </div>
-
-    <!-- RIGHT: Suggestions -->
-    <div class="glass p-6 rounded-2xl shadow-lg">
-      <h2 class="text-xl font-semibold mb-4">Recommendations (per class)</h2>
-
-      <div class="space-y-4 max-h-[70vh] overflow-auto pr-2">
-        {% for cls, suggestion in suggestions.items %}
-          <div class="p-3 rounded-lg bg-white/6 border border-white/10">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="text-md font-semibold">{{ cls|title }}</div>
-                <div class="text-sm text-white/80 mt-1">
-                  Avg confidence: <strong>%</strong>
+                <div class="mt-4">
+                    <h4 class="font-semibold">Overall Advice</h4>
+                    <p class="text-white/90 mt-2">{{ overall_advice }}</p>
                 </div>
-              </div>
             </div>
-            <div class="mt-3 text-white/90">
-              {{ suggestion }}
+
+            <!-- MIDDLE: Summary & Charts -->
+            <div class="glass p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4">Summary</h2>
+
+                <div class="flex items-center gap-6">
+                    <div class="w-50 h-50">
+                        <canvas id="freshDonut"></canvas>
+                        <div class="text-center mt-2 text-sm">
+                            <div>Fresh: <strong>{{ fresh_pct_count }}% || Rotten: <strong>{{ rotten_pct_count
+                                        }}%</strong></strong></div>
+                            <div></div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1">
+                        <h4 class="font-semibold">Confidence Averages</h4>
+                        <p class="text-white/85 mt-2">Fresh avg: <strong>{{ fresh_avg_conf }}%</strong></p>
+                        <p class="text-white/85">Rotten avg: <strong>{{ rotten_avg_conf }}%</strong></p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h4 class="font-semibold mb-2">Per-class counts</h4>
+                    <canvas id="classBar"></canvas>
+                </div>
             </div>
-          </div>
-        {% empty %}
-          <p>No suggestions available.</p>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</main>
 
-<footer class="text-center py-6 text-white/80">
-  © 2025 VegCheck AI • Built with ❤️ Machine Learning
-</footer>
+            <!-- RIGHT: Suggestions -->
+            <div class="glass p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-semibold mb-4">Recommendations (per class)</h2>
 
-<script>
-  // helper to safely read template variables
-  const freshPct = Number({{ fresh_pct_count|default:0 }});
-  const rottenPct = Number({{ rotten_pct_count|default:0 }});
+                <div class="space-y-4 max-h-[70vh] overflow-auto pr-2">
+                    {% for cls, suggestion in suggestions.items %}
+                    <div class="p-3 rounded-lg bg-white/6 border border-white/10">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="text-md font-semibold">{{ cls|title }}</div>
+                                <div class="text-sm text-white/80 mt-1">
+                                    Avg confidence: <strong>%</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-white/90">
+                            {{ suggestion }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No suggestions available.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
 
-  // donut
-  const ctx = document.getElementById('freshDonut').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Fresh', 'Rotten'],
-      datasets: [{ data: [freshPct, rottenPct],
-        backgroundColor: ['rgba(34,197,94,0.95)', 'rgba(239,68,68,0.95)'] }]
-    },
-    options: { cutout: '70%', plugins: { legend: { display: false } } }
-  });
+    <footer class="text-center py-6 text-white/80">
+        © 2025 VegCheck AI • Built with ❤️ Machine Learning
+    </footer>
 
-  // per-class bar
-  const classCounts = {{ counts|safe }}; // dict
-  const labels = Object.keys(classCounts);
-  const data = Object.values(classCounts);
-  const colors = labels.map(l => l.includes('rotten') ? 'rgba(239,68,68,0.85)' : 'rgba(34,197,94,0.85)');
+    <script>
+        // helper to safely read template variables
+        const freshPct = Number({{ fresh_pct_count|default:0 }});
+        const rottenPct = Number({{ rotten_pct_count|default:0 }});
 
-  const ctx2 = document.getElementById('classBar').getContext('2d');
-  new Chart(ctx2, {
-    type: 'bar',
-    data: { labels, datasets: [{ label: 'Count', data, backgroundColor: colors }] },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-      }
-    }
-  });
-</script>
+        // donut
+        const ctx = document.getElementById('freshDonut').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Fresh', 'Rotten'],
+                datasets: [{
+                    data: [freshPct, rottenPct],
+                    backgroundColor: ['rgba(34,197,94,0.95)', 'rgba(239,68,68,0.95)']
+                }]
+            },
+            options: { cutout: '70%', plugins: { legend: { display: false } } }
+        });
+
+        // per-class bar
+        const classCounts = {{ counts| safe }}; // dict
+        const labels = Object.keys(classCounts);
+        const data = Object.values(classCounts);
+        const colors = labels.map(l => l.includes('rotten') ? 'rgba(239,68,68,0.85)' : 'rgba(34,197,94,0.85)');
+
+        const ctx2 = document.getElementById('classBar').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Count', data, backgroundColor: colors }] },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    </script>
 </body>
+
 </html> {% endcomment %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VegCheck - Results</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         body {
@@ -185,19 +206,19 @@
         }
 
         @keyframes fadeUp {
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        .status-fresh { 
+        .status-fresh {
             background: rgba(106, 153, 78, 0.1);
             color: #6A994E;
             border: 1px solid rgba(106, 153, 78, 0.2);
         }
 
-        .status-rotten { 
+        .status-rotten {
             background: rgba(244, 67, 54, 0.1);
             color: #f44336;
             border: 1px solid rgba(244, 67, 54, 0.2);
@@ -297,6 +318,7 @@
             .compact-grid {
                 grid-template-columns: 1fr;
             }
+
             .mini-stats {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 0.5rem;
@@ -307,205 +329,273 @@
 
 <body class="ethereal-bg min-h-screen">
 
-<!-- Main Content -->
-<div class="max-w-7xl mx-auto px-4 py-6">
-    <!-- Header -->
-    <header class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-                <div class="icon-circle gradient-fresh">
-                    <span class="text-white">🥕</span>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="icon-circle gradient-fresh">
+                        <span class="text-white">🥕</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">VegCheck<span class="text-[#6A994E]">AI</span></h1>
+                        <p class="text-sm text-gray-600">Freshness Analysis Results</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">VegCheck<span class="text-[#6A994E]">AI</span></h1>
-                    <p class="text-sm text-gray-600">Freshness Analysis Results</p>
+                <div class="flex gap-2">
+                    <a href="{% url 'detector:upload' %}"
+                        class="px-4 py-2 text-sm font-medium text-[#6A994E] hover:bg-[#6A994E]/5 rounded-lg transition">
+                        ↻ New Scan
+                    </a>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <a href="{% url 'detector:upload' %}" class="px-4 py-2 text-sm font-medium text-[#6A994E] hover:bg-[#6A994E]/5 rounded-lg transition">
-                    ↻ New Scan
-                </a>
-            </div>
-        </div>
 
-        <!-- Summary Stats -->
-        <div class="glass rounded-xl p-4 mb-6 fade-in-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Freshness Analysis</h2>
-                    <p class="text-sm text-gray-600">{{ overall_advice }}</p>
+            <!-- Summary Stats -->
+            <div class="glass rounded-xl p-4 mb-6 fade-in-up">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Freshness Analysis</h2>
+                        <p class="text-sm text-gray-600">{{ overall_advice }}</p>
+                    </div>
+                    <div class="mini-stats">
+                        <div class="bg-[#6A994E]/5 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-[#6A994E]">{{ fresh_count }}</div>
+                            <div class="text-xs text-gray-600">Fresh</div>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-[#f44336]">{{ rotten_count }}</div>
+                            <div class="text-xs text-gray-600">Rotten</div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg text-center">
+                            <div class="text-xl font-bold text-gray-800">{{ total }}</div>
+                            <div class="text-xs text-gray-600">Total</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mini-stats">
-                    <div class="bg-[#6A994E]/5 p-3 rounded-lg text-center">
-                        <div class="text-xl font-bold text-[#6A994E]">{{ fresh_count }}</div>
+            </div>
+        </header>
+
+        <!-- Main Content - Compact Grid -->
+        <div class="compact-grid gap-4 mb-8">
+            <!-- Image Preview -->
+            <div class="glass rounded-xl p-4 fade-in-up">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="icon-circle gradient-fresh-subtle">
+                        <span class="text-[#6A994E]">📷</span>
+                    </div>
+                    <h3 class="font-semibold text-gray-900">Detected Image</h3>
+                </div>
+                <div class="image-preview h-64 mb-3">
+                    <img src="{{ annotated }}" alt="Analysis Results" class="w-full h-full">
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-[#6A994E]/5 p-2 rounded-lg">
+                        <div class="font-semibold text-[#6A994E]">{{ fresh_count }}</div>
                         <div class="text-xs text-gray-600">Fresh</div>
                     </div>
-                    <div class="bg-red-50 p-3 rounded-lg text-center">
-                        <div class="text-xl font-bold text-[#f44336]">{{ rotten_count }}</div>
+                    <div class="bg-red-50 p-2 rounded-lg">
+                        <div class="font-semibold text-[#f44336]">{{ rotten_count }}</div>
                         <div class="text-xs text-gray-600">Rotten</div>
                     </div>
-                    <div class="bg-gray-50 p-3 rounded-lg text-center">
-                        <div class="text-xl font-bold text-gray-800">{{ total }}</div>
+                    <div class="bg-gray-50 p-2 rounded-lg">
+                        <div class="font-semibold text-gray-800">{{ total }}</div>
                         <div class="text-xs text-gray-600">Total</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- Main Content - Compact Grid -->
-    <div class="compact-grid gap-4 mb-8">
-        <!-- Image Preview -->
-        <div class="glass rounded-xl p-4 fade-in-up">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="icon-circle gradient-fresh-subtle">
-                    <span class="text-[#6A994E]">📷</span>
-                </div>
-                <h3 class="font-semibold text-gray-900">Detected Image</h3>
-            </div>
-            <div class="image-preview h-64 mb-3">
-                <img src="{{ annotated }}" alt="Analysis Results" class="w-full h-full">
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-center">
-                <div class="bg-[#6A994E]/5 p-2 rounded-lg">
-                    <div class="font-semibold text-[#6A994E]">{{ fresh_count }}</div>
-                    <div class="text-xs text-gray-600">Fresh</div>
-                </div>
-                <div class="bg-red-50 p-2 rounded-lg">
-                    <div class="font-semibold text-[#f44336]">{{ rotten_count }}</div>
-                    <div class="text-xs text-gray-600">Rotten</div>
-                </div>
-                <div class="bg-gray-50 p-2 rounded-lg">
-                    <div class="font-semibold text-gray-800">{{ total }}</div>
-                    <div class="text-xs text-gray-600">Total</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Freshness Chart -->
-        <div class="glass rounded-xl p-4 fade-in-up" style="animation-delay: 0.1s;">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="icon-circle gradient-fresh-subtle">
-                    <span class="text-[#6A994E]">📊</span>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-900">Freshness Distribution</h3>
-                    <p class="text-xs text-gray-600">Overall assessment</p>
-                </div>
-            </div>
-            
-            <div class="relative h-48 mb-4">
-                <canvas id="freshnessChart"></canvas>
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                    <div class="text-2xl font-bold text-gray-900">{{ fresh_pct_count }}%</div>
-                    <div class="text-xs text-gray-600">Fresh</div>
-                </div>
-            </div>
-            
-            <div class="flex justify-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-[#6A994E]"></div>
-                    <span class="text-sm">Fresh: {{ fresh_pct_count }}%</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-[#f44336]"></div>
-                    <span class="text-sm">Rotten: {{ rotten_pct_count }}%</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Confidence Metrics -->
-        <div class="glass rounded-xl p-4 fade-in-up" style="animation-delay: 0.2s;">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="icon-circle gradient-fresh-subtle">
-                    <span class="text-[#6A994E]">🎯</span>
-                </div>
-                <div>
-                    <h3 class="font-semibold text-gray-900">Confidence Metrics</h3>
-                    <p class="text-xs text-gray-600">Detection accuracy</p>
-                </div>
-            </div>
-            
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-700">Fresh Confidence</span>
-                        <span class="font-semibold text-[#6A994E]">{{ fresh_avg_conf }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill bg-[#6A994E]" style="width: {{ fresh_avg_conf }}%"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-700">Rotten Confidence</span>
-                        <span class="font-semibold text-[#f44336]">{{ rotten_avg_conf }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill bg-[#f44336]" style="width: {{ rotten_avg_conf }}%"></div>
-                    </div>
-                </div>
-
-                <div class="pt-3 border-t border-gray-100">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-700">Detection Quality</span>
-                        <span class="font-semibold text-[#6A994E]">High</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill bg-gradient-to-r from-[#6A994E] to-[#8BA888]" style="width: 95%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Recommendations -->
-        <div class="glass rounded-xl p-5 fade-in-up">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
+            <!-- Freshness Chart -->
+            <div class="glass rounded-xl p-4 fade-in-up" style="animation-delay: 0.1s;">
+                <div class="flex items-center gap-3 mb-4">
                     <div class="icon-circle gradient-fresh-subtle">
-                        <span class="text-[#6A994E]">💡</span>
+                        <span class="text-[#6A994E]">📊</span>
                     </div>
-                    <h3 class="font-semibold text-gray-900">Recommendations</h3>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Freshness Distribution</h3>
+                        <p class="text-xs text-gray-600">Overall assessment</p>
+                    </div>
                 </div>
-                <span class="text-xs px-2 py-1 rounded-full bg-[#6A994E]/10 text-[#6A994E]">
-                    {{ suggestions|length }} items
-                </span>
+
+                <div class="relative h-48 mb-4">
+                    <canvas id="freshnessChart"></canvas>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                        <div class="text-2xl font-bold text-gray-900">{{ fresh_pct_count }}%</div>
+                        <div class="text-xs text-gray-600">Fresh</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-[#6A994E]"></div>
+                        <span class="text-sm">Fresh: {{ fresh_pct_count }}%</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-[#f44336]"></div>
+                        <span class="text-sm">Rotten: {{ rotten_pct_count }}%</span>
+                    </div>
+                </div>
             </div>
-            
-            <div class="compact-list scroll-area pr-2">
-                {% for cls, suggestion in suggestions.items %}
-                <div class="glass-light p-3 rounded-lg mb-3 hover:bg-white/80 transition">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center 
-                            {% if 'rotten' in cls %}bg-red-50 text-[#f44336]{% else %}bg-green-50 text-[#6A994E]{% endif %}">
-                            {% if 'tomato' in cls %}🍅{% elif 'carrot' in cls %}🥕
-                            {% elif 'bell_pepper' in cls %}🫑{% elif 'broccoli' in cls %}🥦
-                            {% elif 'potato' in cls %}🥔{% else %}🥬{% endif %}
+
+            <!-- Confidence Metrics -->
+            <div class="glass rounded-xl p-4 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="icon-circle gradient-fresh-subtle">
+                        <span class="text-[#6A994E]">🎯</span>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Confidence Metrics</h3>
+                        <p class="text-xs text-gray-600">Detection accuracy</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-700">Fresh Confidence</span>
+                            <span class="font-semibold text-[#6A994E]">{{ fresh_avg_conf }}%</span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="font-medium text-sm text-gray-900">{{ cls|title }}</span>
-                                <span class="text-xs px-2 py-1 rounded-full 
-                                    {% if 'rotten' in cls %}status-rotten{% else %}status-fresh{% endif %}">
-                                    {% if 'rotten' in cls %}Discard{% else %}Good{% endif %}
-                                </span>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-[#6A994E]" style="width: {{ fresh_avg_conf }}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-700">Rotten Confidence</span>
+                            <span class="font-semibold text-[#f44336]">{{ rotten_avg_conf }}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-[#f44336]" style="width: {{ rotten_avg_conf }}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-gray-100">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-700">Detection Quality</span>
+                            <span class="font-semibold text-[#6A994E]">High</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill bg-gradient-to-r from-[#6A994E] to-[#8BA888]" style="width: 95%">
                             </div>
-                            <p class="text-xs text-gray-600 leading-relaxed">{{ suggestion }}</p>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="text-center py-6 text-gray-500">
-                    <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                        <span class="text-lg">🤔</span>
+            </div>
+        </div>
+
+        <!-- Detailed Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Recommendations -->
+            <div class="glass rounded-xl p-5 fade-in-up">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="icon-circle gradient-fresh-subtle">
+                            <span class="text-[#6A994E]">💡</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900">Recommendations</h3>
                     </div>
-                    <p class="text-sm">No recommendations available</p>
+                    <span class="text-xs px-2 py-1 rounded-full bg-[#6A994E]/10 text-[#6A994E]">
+                        {{ suggestions|length }} items
+                    </span>
                 </div>
-                {% endfor %}
+
+                <div class="compact-list scroll-area pr-2">
+                    {% for cls, suggestion in suggestions.items %}
+                    <div class="glass-light p-3 rounded-lg mb-3 hover:bg-white/80 transition">
+                        <div class="flex items-start gap-3">
+
+                            <!-- Fruit Icon -->
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center
+                {% if 'rotten' in cls %}
+                    bg-red-50 text-[#f44336]
+                {% else %}
+                    bg-green-50 text-[#6A994E]
+                {% endif %}">
+
+                                {% if 'tomato' in cls %}
+                                🍅
+                                {% elif 'carrot' in cls %}
+                                🥕
+                                {% elif 'bell_pepper' in cls %}
+                                🫑
+                                {% elif 'broccoli' in cls %}
+                                🥦
+                                {% elif 'potato' in cls %}
+                                🥔
+                                {% elif 'apple' in cls %}
+                                🍎
+                                {% elif 'banana' in cls %}
+                                🍌
+                                {% elif 'orange' in cls %}
+                                🍊
+                                {% elif 'cucumber' in cls %}
+                                🥒
+                                {% else %}
+                                🥬
+                                {% endif %}
+
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+
+                                <div class="flex items-center justify-between mb-1">
+
+                                    <span class="font-medium text-sm text-gray-900">
+                                        {{ cls|title }}
+                                    </span>
+
+                                    <span class="text-xs px-2 py-1 rounded-full
+                        {% if 'rotten' in cls %}
+                            status-rotten
+                        {% else %}
+                            status-fresh
+                        {% endif %}">
+
+                                        {% if 'rotten' in cls %}
+                                        Rotten
+                                        {% else %}
+                                        Fresh
+                                        {% endif %}
+
+                                    </span>
+
+                                </div>
+
+                                <!-- Recommendation -->
+                                <p class="text-xs text-gray-600 leading-relaxed mt-2">
+                                    {{ suggestion.text }}
+                                </p>
+
+                                <!-- YouTube Button -->
+                                <a href="{{ suggestion.youtube }}" target="_blank" class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg text-white text-sm font-medium transition duration-300
+                   {% if 'rotten' in cls %}
+                       bg-red-600 hover:bg-red-700
+                   {% else %}
+                       bg-[#6A994E] hover:bg-[#5b8743]
+                   {% endif %}">
+
+                                    
+
+                                    {{ suggestion.button }}
+
+                                </a>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {% empty %}
+                    <div class="text-center py-6 text-gray-500">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                            <span class="text-lg">🤔</span>
+                        </div>
+                        <p class="text-sm">No recommendations available</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
@@ -517,12 +607,13 @@
                 </div>
                 <h3 class="font-semibold text-gray-900">Detection Summary</h3>
             </div>
-            
+
             <div class="space-y-3">
                 {% for cls, count in counts.items %}
                 <div class="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg hover:bg-white transition">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center 
+                        <div
+                            class="w-8 h-8 rounded-lg flex items-center justify-center 
                             {% if 'rotten' in cls %}bg-red-50 text-[#f44336]{% else %}bg-green-50 text-[#6A994E]{% endif %}">
                             {% if 'tomato' in cls %}🍅{% elif 'carrot' in cls %}🥕
                             {% elif 'bell_pepper' in cls %}🫑{% elif 'broccoli' in cls %}🥦
@@ -573,7 +664,7 @@
             </div>
             <h3 class="font-semibold text-gray-900">Quick Tips for Freshness</h3>
         </div>
-        
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="text-center p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl">
                 <div class="text-2xl mb-2">✅</div>
@@ -600,66 +691,67 @@
 
     <!-- Action Buttons -->
     <div class="flex flex-col sm:flex-row gap-3 fade-in-up" style="animation-delay: 0.3s;">
-        <a href="{% url 'detector:upload' %}" 
-           class="flex-1 gradient-fresh text-white py-3 px-6 rounded-xl font-semibold text-center hover:shadow-lg transition-all flex items-center justify-center gap-2">
+        <a href="{% url 'detector:upload' %}"
+            class="flex-1 gradient-fresh text-white py-3 px-6 rounded-xl font-semibold text-center hover:shadow-lg transition-all flex items-center justify-center gap-2">
             <span>📤</span>
             <span>Analyze New Image</span>
         </a>
-        <a href="{% url 'detector:live' %}" 
-           class="flex-1 glass-light py-3 px-6 rounded-xl font-semibold text-center text-gray-700 hover:bg-white/90 transition-all flex items-center justify-center gap-2">
+        <a href="{% url 'detector:live' %}"
+            class="flex-1 glass-light py-3 px-6 rounded-xl font-semibold text-center text-gray-700 hover:bg-white/90 transition-all flex items-center justify-center gap-2">
             <span>🎥</span>
             <span>Live Detection</span>
         </a>
-        <button onclick="window.print()" 
-                class="flex-1 glass-light py-3 px-6 rounded-xl font-semibold text-center text-gray-700 hover:bg-white/90 transition-all flex items-center justify-center gap-2">
+        <button onclick="window.print()"
+            class="flex-1 glass-light py-3 px-6 rounded-xl font-semibold text-center text-gray-700 hover:bg-white/90 transition-all flex items-center justify-center gap-2">
             <span>🖨️</span>
             <span>Export Report</span>
         </button>
     </div>
 
     <!-- Footer -->
-</div>
+    </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Freshness Chart
-        const ctx = document.getElementById('freshnessChart').getContext('2d');
-        const freshnessChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Fresh', 'Rotten'],
-                datasets: [{
-                    data: [{{ fresh_pct_count|default:0 }}, {{ rotten_pct_count|default:0 }}],
-                    backgroundColor: ['#6A994E', '#f44336'],
-                    borderWidth: 0,
-                    hoverOffset: 10
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Freshness Chart
+            const ctx = document.getElementById('freshnessChart').getContext('2d');
+            const freshnessChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fresh', 'Rotten'],
+                    datasets: [{
+                        data: [{{ fresh_pct_count|default:0
+                    }}, {{ rotten_pct_count|default:0 }}],
+            backgroundColor: ['#6A994E', '#f44336'],
+            borderWidth: 0,
+            hoverOffset: 10
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1a1a1a',
-                        bodyColor: '#4a5568',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.label}: ${context.raw}%`;
-                            }
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1a1a1a',
+                    bodyColor: '#4a5568',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw}%`;
                         }
                     }
-                },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true,
-                    duration: 1500
                 }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true,
+                duration: 1500
             }
+        }
         });
 
         // Add fade-in animations to elements
@@ -681,7 +773,7 @@
                 card.style.transform = 'translateY(-2px)';
                 card.style.boxShadow = '0 8px 32px rgba(106, 153, 78, 0.12)';
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = '0 4px 24px rgba(106, 153, 78, 0.08)';
@@ -697,6 +789,7 @@
             }, 300);
         });
     });
-</script>
+    </script>
 </body>
+
 </html>
